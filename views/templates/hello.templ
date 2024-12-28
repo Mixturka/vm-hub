@@ -1,0 +1,23 @@
+package templates
+
+import (
+	"strconv"
+)
+
+templ Hello(name int) {
+    <html lang="en">
+    <head>
+        <script src="/assets/js/htmx.min.js"></script>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        Count: { strconv.Itoa(name) }
+        <button hx-post="/clicked" hx-swap="outerHTML">
+            Click Me
+        </button>
+    </body>
+</html>
+}
