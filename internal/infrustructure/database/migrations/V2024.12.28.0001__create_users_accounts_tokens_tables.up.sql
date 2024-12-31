@@ -17,7 +17,7 @@ CREATE TABLE accounts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type TEXT NOT NULL,
     provider TEXT NOT NULL,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- Foreign to users
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- Foreign key to users
     refresh_token TEXT,
     access_token TEXT,
     expires_at INT,
