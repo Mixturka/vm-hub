@@ -3,15 +3,15 @@ package entities
 import "time"
 
 type User struct {
-	ID             string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	ProfilePicture string `gorm:"default:''"`
+	ID             string
+	ProfilePicture string
 	Name           string
-	Email          string `gorm:"unique"`
+	Email          string
 	Password       string
-	Accounts       []Account `gorm:"foreignKey:UserID"`
+	Accounts       []Account
 
-	IsEmailVerified    bool `gorm:"default:false"`
-	IsTwoFactorEnabled bool `gorm:"default:false"`
+	IsEmailVerified    bool
+	IsTwoFactorEnabled bool
 	Method             AuthMethod
 
 	CreatedAt time.Time

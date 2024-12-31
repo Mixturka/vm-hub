@@ -3,9 +3,9 @@ package entities
 import "time"
 
 type Token struct {
-	ID        string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ID        string
 	UserEmail string
-	Token     string `gorm:"unique"`
+	Token     string
 	Type      TokenType
 	ExpiresIn time.Time
 }
