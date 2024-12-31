@@ -3,16 +3,14 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
+	"vm-hub/internal/config"
 	"vm-hub/views/templates"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 )
 
 type Server struct {
@@ -25,19 +23,9 @@ func NewServer(r *chi.Router) *Server {
 	return s
 }
 
-func (s *Server) Start() error {
-	if err := godotenv.Load(); err != nil {
-		slog.Error("Error loading .env file", "error", err)
-		return err
-	}
-
-	listenAddr := os.Getenv("LISTEN_ADDR")
-	if listenAddr == "" {
-		log.Fatal("Http server listed address was not provided in environment")
-	}
-
-	slog.Info("Http server listening", "address", listenAddr)
-	s.httpServer = &http.Server{Addr: listenAddr, Handler: *s.router}
+func (s *Server) Start(config *config.Config) error {
+	slog.Info("Http server listening", "address", config.ListenAddr)
+	s.httpServer = &http.Server{Addr: config.ListenAddr, Handler: *s.router}
 	err := s.httpServer.ListenAndServe()
 
 	if err != http.ErrServerClosed {
