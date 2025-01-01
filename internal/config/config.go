@@ -11,18 +11,20 @@ import (
 )
 
 type Config struct {
-	ListenAddr string
+	ListenAddr     string
+	SessionOptions *SessionOptions
+	RedisUri       string
+}
 
-	CookiesSecret   string
-	SessionSecret   string
+type SessionOptions struct {
+	MaxAge          int
 	SessionName     string
 	SessionDomain   string
-	SessionLifeTime int
-	SessionHttpOnly bool
 	SessionSecure   bool
+	SessionHttpOnly bool
 	SessionFolder   string
-
-	RedisUri string
+	SessionSecret   string
+	CookiesSecret   string
 }
 
 /*
@@ -87,16 +89,21 @@ func LoadConfig() *Config {
 		os.Exit(1)
 	}
 
-	return &Config{
-		ListenAddr:      os.Getenv("LISTEN_ADDR"),
-		CookiesSecret:   os.Getenv("COOKIES_SECRET"),
-		SessionSecret:   os.Getenv("SESSION_SECRET"),
+	sessionOptions := &SessionOptions{
+		MaxAge:          sessionLifeTime,
 		SessionName:     os.Getenv("SESSION_NAME"),
 		SessionDomain:   os.Getenv("SESSION_DOMAIN"),
-		SessionLifeTime: sessionLifeTime,
-		SessionHttpOnly: sessionHttpOnly,
 		SessionSecure:   sessionSecure,
+		SessionHttpOnly: sessionHttpOnly,
 		SessionFolder:   os.Getenv("SESSION_FOLDER"),
-		RedisUri:        os.Getenv("REDIS_URI"),
+		SessionSecret:   os.Getenv("SESSION_SECRET"),
+		CookiesSecret:   os.Getenv("COOKIES_SECRET"),
+	}
+
+	return &Config{
+		ListenAddr:     os.Getenv("LISTEN_ADDR"),
+		SessionOptions: sessionOptions,
+		RedisUri:       os.Getenv("REDIS_URI"),
 	}
 }
+	
