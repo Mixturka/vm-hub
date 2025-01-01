@@ -2,81 +2,78 @@ package session
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
+	"vm-hub/internal/application/interfaces"
 	"vm-hub/internal/config"
 
-	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/sessions"
+	"github.com/google/uuid"
 )
 
-type RedisSessionManager struct {
-	client  *redis.Client
-	session *sessions.CookieStore
+type SessionManager struct {
+	storage interfaces.SessionStorage
 	options *config.SessionOptions
 }
 
-func NewRedisSessionManager(client *redis.Client, cfg *config.Config) *RedisSessionManager {
-	options := &config.SessionOptions{
-		MaxAge:          cfg.SessionLifeTime,
-		SessionName:     cfg.SessionName,
-		SessionDomain:   cfg.SessionDomain,
-		SessionSecure:   cfg.SessionSecure,
-		SessionHttpOnly: cfg.SessionHttpOnly,
-		SessionFolder:   cfg.SessionFolder,
-		SessionSecret:   cfg.SessionSecret,
-		CookiesSecret:   cfg.CookiesSecret,
-	}
-
-	return &RedisSessionManager{
-		client:  client,
-		session: sessions.NewCookieStore([]byte(cfg.SessionSecret)),
+func NewSessionManager(storage interfaces.SessionStorage, options *config.SessionOptions) *RedisSessionManager {
+	return &SessionManager{
+		storage: storage,
 		options: options,
 	}
 }
 
-func (rsm *RedisSessionManager) Get(ctx context.Context, r *http.Request, name string) (map[string]interface{}, error) {
-	data, err := rsm.client.Get(ctx, name).Result()
-	if err == redis.Nil {
-		return map[string]interface{}{}, nil
-	} else if err != nil {
+func (sm *SessionManager) CreateSession(w http.ResponseWriter, values map[string]interface{}) (string, error) {
+	sessionID := uuid.NewString()
+	err := sm.storage.Set(context.Background(), sessionID, values, sm.options.MaxAge)
+	if err != nil {
+		return "", errors.New("failed to save session")
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     sm.options.SessionName,
+		Value:    sessionID,
+		Path:     "/",
+		HttpOnly: sm.options.SessionHttpOnly,
+		Secure:   sm.options.SessionSecure,
+		MaxAge:   sm.options.MaxAge,
+		Domain:   sm.options.SessionDomain,
+	})
+
+	return sessionID, nil
+}
+
+func (sm *SessionManager) GetSession(r *http.Request) (map[string]interface{}, error) {
+	cookie, err := r.Cookie(sm.options.SessionName)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	var values map[string]interface{}
-	err = json.Unmarshal([]byte(data), &values)
-	if err != nil {
-		return nil, errors.New("failed to json unmarshal session data")
-	}
-
-	return values, nil
+	return sm.storage.Get(context.Background(), cookie.Value)
 }
 
-func (rsm *RedisSessionManager) Save(ctx context.Context, r *http.Request, w http.ResponseWriter, name string, values map[string]interface{}) error {
-	data, err := json.Marshal(values)
+func (sm *SessionManager) DestroySession(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie(sm.options.SessionName)
 	if err != nil {
-		return errors.New("failed to json marshal session data")
+		return nil
 	}
 
-	err = rsm.client.Set(ctx, name, data, time.Duration(rsm.options.MaxAge)).Err()
+	err = sm.storage.Delete(context.Background(), cookie.Value)
 	if err != nil {
-		return errors.New("failed to save session to Redis")
+		errors.New("failed to delete session")
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     sm.options.SessionName,
+		Value:    "",
+		Path:     "/",
+		Domain:   sm.options.SessionDomain,
+		HttpOnly: sm.options.SessionHttpOnly,
+		Secure:   sm.options.SessionSecure,
+		MaxAge:   -1,
+	})
 
 	return nil
-}
-
-func (rsm *RedisSessionManager) Delete(ctx context.Context, r *http.Request, w http.ResponseWriter, name string) error {
-	err := rsm.client.Del(ctx, name).Err()
-	if err != nil {
-		return errors.New("failed to delete session from Redis")
-	}
-
-	return err
-}
-
-func (rsm *RedisSessionManager) GetOptions() *config.SessionOptions {
-	return rsm.options
 }
