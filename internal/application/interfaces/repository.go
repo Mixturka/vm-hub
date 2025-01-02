@@ -2,7 +2,8 @@ package interfaces
 
 import (
 	"context"
-	"vm-hub/internal/domain/entities"
+
+	"github.com/Mixturka/vm-hub/internal/domain/entities"
 )
 
 type UserRepository interface {

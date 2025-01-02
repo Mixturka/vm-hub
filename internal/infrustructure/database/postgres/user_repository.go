@@ -3,8 +3,9 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"vm-hub/internal/application/interfaces"
-	"vm-hub/internal/domain/entities"
+
+	"github.com/Mixturka/vm-hub/internal/application/interfaces"
+	"github.com/Mixturka/vm-hub/internal/domain/entities"
 
 	"github.com/jackc/pgx/v4"
 )
@@ -22,8 +23,8 @@ func NewPostgresUserRepository(db *pgx.Conn) interfaces.UserRepository {
 func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*entities.User, error) {
 	var user entities.User
 	userQuery := `SELECT id, profile_picture, name, email, password,
-			    is_email_verified, is_two_factor_enabled, method, created_at, updated_at
-			  FROM users WHERE id = $1`
+			      	is_email_verified, is_two_factor_enabled, method, created_at, updated_at
+			  	  FROM users WHERE id = $1`
 
 	err := r.db.QueryRow(ctx, userQuery, id).Scan(user.ID, user.ProfilePicture, user.Name,
 		user.Email, user.Password, user.IsEmailVerified,
@@ -62,8 +63,8 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*entit
 func (r *PostgresUserRepository) GetByEmail(ctx context.Context, email string) (*entities.User, error) {
 	var user entities.User
 	userQuery := `SELECT id, profile_picture, name, email, password,
-			    is_email_verified, is_two_factor_enabled, method, created_at, updated_at
-			  FROM users WHERE enail = $1`
+			    	is_email_verified, is_two_factor_enabled, method, created_at, updated_at
+			      FROM users WHERE email = $1`
 
 	err := r.db.QueryRow(ctx, userQuery, email).Scan(user.ID, user.ProfilePicture, user.Name,
 		user.Email, user.Password, user.IsEmailVerified,
@@ -112,7 +113,7 @@ func (r *PostgresUserRepository) Save(ctx context.Context, user *entities.User) 
 
 	for _, account := range user.Accounts {
 		accountQuery := `INSERT INTO accounts (id, user_id, type, provider, refresh_token, access_token, expires_at, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+						 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 		_, err := r.db.Exec(ctx, accountQuery, account.ID, user.ID, account.Type, account.Provider,
 			account.RefreshToken, account.AccessToken, account.ExpiresAt,
 			account.CreatedAt, account.UpdatedAt)

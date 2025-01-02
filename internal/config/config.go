@@ -1,7 +1,8 @@
 package config
 
 import (
-	"log/slog"
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -64,29 +65,25 @@ func parseDuration(duration string) (int, error) {
 	return value, nil
 }
 
-func LoadConfig() *Config {
+func LoadConfig() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		slog.Error("Error loading .env file", "error", err)
-		os.Exit(1)
+		return nil, errors.New(fmt.Sprintf("Error loading .env file: %s", err))
 	}
 
 	sessionLifeTimeStr := os.Getenv("SESSION_LIFETIME")
 	sessionLifeTime, err := parseDuration(sessionLifeTimeStr)
 	if err != nil {
-		slog.Error("Invalid SESSION_LIFETIME value", "value", sessionLifeTimeStr, "error", err)
-		os.Exit(1)
+		return nil, errors.New("Invalid SESSION_LIFETIME value")
 	}
 
 	sessionSecure, err := strconv.ParseBool(os.Getenv("SESSION_SECURE"))
 	if err != nil {
-		slog.Error("Invalid SESSION_SECURE value", "value", os.Getenv("SESSION_SECURE"), "error", err)
-		os.Exit(1)
+		return nil, errors.New("Invalid SESSION_SECURE value")
 	}
 
 	sessionHttpOnly, err := strconv.ParseBool(os.Getenv("SESSION_HTTP_ONLY"))
 	if err != nil {
-		slog.Error("Invalid SESSION_HTTP_ONLY value", "value", os.Getenv("SESSION_HTTP_ONLY"), "error", err)
-		os.Exit(1)
+		return nil, errors.New("Invalid SESSION_HTTP_ONLY value")
 	}
 
 	sessionOptions := &SessionOptions{
@@ -104,6 +101,5 @@ func LoadConfig() *Config {
 		ListenAddr:     os.Getenv("LISTEN_ADDR"),
 		SessionOptions: sessionOptions,
 		RedisUri:       os.Getenv("REDIS_URI"),
-	}
+	}, nil
 }
-	

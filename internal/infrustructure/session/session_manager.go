@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"vm-hub/internal/application/interfaces"
-	"vm-hub/internal/config"
+
+	"github.com/Mixturka/vm-hub/internal/application/interfaces"
+	"github.com/Mixturka/vm-hub/internal/config"
 
 	"github.com/google/uuid"
 )

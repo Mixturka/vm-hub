@@ -6,8 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
-	"vm-hub/internal/config"
-	"vm-hub/views/templates"
+
+	"github.com/Mixturka/vm-hub/internal/config"
+	"github.com/Mixturka/vm-hub/views/templates"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
