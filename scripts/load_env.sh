@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -f ".env.test" ]; then
   if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
@@ -14,7 +14,7 @@ if [ -f ".env.test" ]; then
     echo ".env loaded with resolved variables"
   else
     set -a
-    source ./.env.test
+    . ./.env.test
     set +a
 
     echo ".env loaded with resolved variables"
