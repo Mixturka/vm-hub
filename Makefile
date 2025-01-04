@@ -20,7 +20,7 @@ reset-db:
 	@$(RESET_TEST_DB_SCRIPT)
 
 test:
-	@source $(LOAD_ENV) && $(RUN_TESTS_SCRIPT)
+	@. $(LOAD_ENV) && $(RUN_TESTS_SCRIPT)
 
 clean-tests:
 	@$(MAKE) reset-db
