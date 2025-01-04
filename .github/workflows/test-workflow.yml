@@ -36,5 +36,6 @@ jobs:
       run: chmod -R +x ./scripts
     
     - name: Run tests
-      shell: bash
-      run: sudo make test
+
+      - run: sudo make test
+          shell: bash
