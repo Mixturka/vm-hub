@@ -34,6 +34,9 @@ jobs:
     
     - name: Make scripts executable
       run: chmod -R +x ./scripts
+
+    - name: Debug permissions
+      run: ls -l ./scripts
     
     - name: Run tests
-      run: sudo make test
+      run: make test
