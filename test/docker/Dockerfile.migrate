@@ -1,0 +1,12 @@
+FROM golang:1.23
+
+ENV CGO_ENABLED=0 \
+    GO111MODULE=on \
+    PATH=$PATH:/go/bin
+
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+WORKDIR /app
+
+CMD ["sh", "-c", "ls /migrations"]
+#  && migrate -path=/migrations -database postgres://postgres:postgres@postgres_test:5432/postgres?sslmode=disable up
