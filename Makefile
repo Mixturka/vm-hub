@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 START_TEST_ENV_SCRIPT := ./scripts/test/test_env_up.sh
 STOP_TEST_ENV_SCRIPT := ./scripts/test/test_env_down.sh
 MIGRATE_TEST_SCRIPT := ./scripts/test/migrate_test.sh
