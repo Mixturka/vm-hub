@@ -33,4 +33,4 @@ jobs:
         echo "API_KEY=${{ secrets.API_KEY }}" >> .env.test
     
     - name: Run tests
-      run: make test
+      run: sudo make test
