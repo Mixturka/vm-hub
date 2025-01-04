@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Resetting the database to its original state..."
 echo $TEST_POSTGRES_URL

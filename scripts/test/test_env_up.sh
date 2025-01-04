@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Starting test database environment..."
 docker compose -f ./test/docker/docker-compose.yml up -d postgres_test

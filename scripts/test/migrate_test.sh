@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "Running database migrations..."
 
 MIGRATE_CMD="docker run --rm --network=docker_app_network -v $POSTGRES_MIGRATIONS_PATH:/migrations migrate/migrate"
