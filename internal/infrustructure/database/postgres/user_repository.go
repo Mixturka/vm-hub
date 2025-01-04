@@ -3,18 +3,19 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Mixturka/vm-hub/internal/application/interfaces"
 	"github.com/Mixturka/vm-hub/internal/domain/entities"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type PostgresUserRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewPostgresUserRepository(db *pgx.Conn) interfaces.UserRepository {
+func NewPostgresUserRepository(db *pgxpool.Pool) interfaces.UserRepository {
 	return &PostgresUserRepository{
 		db: db,
 	}
@@ -22,38 +23,44 @@ func NewPostgresUserRepository(db *pgx.Conn) interfaces.UserRepository {
 
 func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*entities.User, error) {
 	var user entities.User
+
 	userQuery := `SELECT id, profile_picture, name, email, password,
 			      	is_email_verified, is_two_factor_enabled, method, created_at, updated_at
 			  	  FROM users WHERE id = $1`
 
-	err := r.db.QueryRow(ctx, userQuery, id).Scan(user.ID, user.ProfilePicture, user.Name,
-		user.Email, user.Password, user.IsEmailVerified,
-		user.IsTwoFactorEnabled, user.Method, user.CreatedAt,
-		user.UpdatedAt)
+	err := r.db.QueryRow(ctx, userQuery, id).Scan(&user.ID, &user.ProfilePicture, &user.Name,
+		&user.Email, &user.Password, &user.IsEmailVerified,
+		&user.IsTwoFactorEnabled, &user.Method, &user.CreatedAt,
+		&user.UpdatedAt)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, fmt.Errorf("user with ID %s not found: %w", id, sql.ErrNoRows)
 	} else if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching user by ID: %w", err)
 	}
 
 	accountsQuery := `SELECT id, user_id, type, provider, refresh_token, access_token, expires_at, created_at, updated_at
 					  FROM accounts WHERE user_id = $1`
+
 	rows, err := r.db.Query(ctx, accountsQuery, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching accounts for user %s: %w", id, err)
 	}
 	defer rows.Close()
 
-	var accounts []entities.Account
+	accounts := []entities.Account{}
 	for rows.Next() {
 		var account entities.Account
+
 		if err := rows.Scan(&account.ID, &account.UserID, &account.Type, &account.Provider,
 			&account.RefreshToken, &account.AccessToken, &account.ExpiresAt,
 			&account.CreatedAt, &account.UpdatedAt); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning account for user %s: %w", id, err)
 		}
-		account.User = user
 		accounts = append(accounts, account)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over accounts for user %s: %w", id, err)
 	}
 
 	user.Accounts = accounts
@@ -62,38 +69,44 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*entit
 
 func (r *PostgresUserRepository) GetByEmail(ctx context.Context, email string) (*entities.User, error) {
 	var user entities.User
-	userQuery := `SELECT id, profile_picture, name, email, password,
-			    	is_email_verified, is_two_factor_enabled, method, created_at, updated_at
-			      FROM users WHERE email = $1`
 
-	err := r.db.QueryRow(ctx, userQuery, email).Scan(user.ID, user.ProfilePicture, user.Name,
-		user.Email, user.Password, user.IsEmailVerified,
-		user.IsTwoFactorEnabled, user.Method, user.CreatedAt,
-		user.UpdatedAt)
+	userQuery := `SELECT id, profile_picture, name, email, password,
+			      	is_email_verified, is_two_factor_enabled, method, created_at, updated_at
+			  	  FROM users WHERE email = $1`
+
+	err := r.db.QueryRow(ctx, userQuery, email).Scan(&user.ID, &user.ProfilePicture, &user.Name,
+		&user.Email, &user.Password, &user.IsEmailVerified,
+		&user.IsTwoFactorEnabled, &user.Method, &user.CreatedAt,
+		&user.UpdatedAt)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, fmt.Errorf("user with email %s not found: %w", email, sql.ErrNoRows)
 	} else if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching user by email: %w", err)
 	}
 
 	accountsQuery := `SELECT id, user_id, type, provider, refresh_token, access_token, expires_at, created_at, updated_at
 					  FROM accounts WHERE user_id = $1`
+
 	rows, err := r.db.Query(ctx, accountsQuery, user.ID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching accounts for user with email %s: %w", email, err)
 	}
 	defer rows.Close()
 
-	var accounts []entities.Account
+	accounts := []entities.Account{}
 	for rows.Next() {
 		var account entities.Account
+
 		if err := rows.Scan(&account.ID, &account.UserID, &account.Type, &account.Provider,
 			&account.RefreshToken, &account.AccessToken, &account.ExpiresAt,
 			&account.CreatedAt, &account.UpdatedAt); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning account for user with email %s: %w", email, err)
 		}
-		account.User = user
 		accounts = append(accounts, account)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over accounts for user with email %s: %w", email, err)
 	}
 
 	user.Accounts = accounts
@@ -103,7 +116,7 @@ func (r *PostgresUserRepository) GetByEmail(ctx context.Context, email string) (
 func (r *PostgresUserRepository) Save(ctx context.Context, user *entities.User) error {
 	query := `INSERT INTO users (id, profile_picture, name, email, password,
 			    is_email_verified, is_two_factor_enabled, method, created_at, updated_at)
-			  VALUES $1, $2, $3, $4, $5, $6, $7, $8, $9, $10`
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	_, err := r.db.Query(ctx, query, user.ID, user.ProfilePicture, user.Name, user.Email,
 		user.Password, user.IsEmailVerified, user.IsTwoFactorEnabled, user.Method,
 		user.CreatedAt, user.UpdatedAt)

@@ -16,7 +16,7 @@ type SessionManager struct {
 	options *config.SessionOptions
 }
 
-func NewSessionManager(storage interfaces.SessionStorage, options *config.SessionOptions) *RedisSessionManager {
+func NewSessionManager(storage interfaces.SessionStorage, options *config.SessionOptions) *SessionManager {
 	return &SessionManager{
 		storage: storage,
 		options: options,
@@ -63,7 +63,7 @@ func (sm *SessionManager) DestroySession(w http.ResponseWriter, r *http.Request)
 
 	err = sm.storage.Delete(context.Background(), cookie.Value)
 	if err != nil {
-		errors.New("failed to delete session")
+		return errors.New("failed to delete session")
 	}
 
 	http.SetCookie(w, &http.Cookie{
