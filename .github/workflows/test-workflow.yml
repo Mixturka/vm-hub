@@ -33,7 +33,7 @@ jobs:
         echo "API_KEY=${{ secrets.API_KEY }}" >> .env.test
     
     - name: Make scripts executable
-      run: chmod +x ./scripts/*
+      run: chmod -R +x ./scripts
     
     - name: Run tests
       run: sudo make test
