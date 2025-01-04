@@ -1,0 +1,20 @@
+name: Copy Test Workflow Files
+
+on: [push]
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Copy Test CI Workflow
+        run: |
+          mkdir -p .github/workflows
+          cp build/ci/github/*.yml .github/workflows/
+      - name: Run CI Tests
+        uses: actions/github-script@v5
+        with:
+          script: |
+            console.log('CI Workflow Moved and Ready')
