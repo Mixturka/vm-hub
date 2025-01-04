@@ -1,7 +1,10 @@
 name: Copy Test Workflow Files
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   run-tests:
-    uses: ./build/ci/github/test-workflow.yml
+    uses: vm-hub/build/ci/github/test-workflow.yml@master
