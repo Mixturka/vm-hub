@@ -1,5 +1,6 @@
 #!/bin/sh
 
 echo "Resetting the database to its original state..."
-MIGRATE_CMD="docker run --rm --network=docker_app_network -v $(pwd)/internal/infrustructure/database/postgres/migrations:/migrations migrate/migrate"
-$MIGRATE_CMD -path=/migrations -database "postgres://postgres:postgres@postgres_test:5432/postgres?sslmode=disable" -verbose down -all
+echo $TEST_POSTGRES_URL
+MIGRATE_CMD="docker run --rm --network=docker_app_network -v $POSTGRES_MIGRATIONS_PATH:/migrations migrate/migrate"
+$MIGRATE_CMD -path=/migrations -database $TEST_POSTGRES_URL -verbose down -all
