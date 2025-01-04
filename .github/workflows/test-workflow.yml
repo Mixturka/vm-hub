@@ -32,5 +32,8 @@ jobs:
         echo "POSTGRES_URL=${{ secrets.POSTGRES_URL }}" > .env.test
         echo "API_KEY=${{ secrets.API_KEY }}" >> .env.test
     
+    - name: Make scripts executable
+      run: chmod +x ./scripts/*
+    
     - name: Run tests
       run: sudo make test
