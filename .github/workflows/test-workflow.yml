@@ -8,7 +8,9 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -36,5 +38,4 @@ jobs:
       run: chmod -R +x ./scripts
     
     - name: Run tests
-      - run: sudo make test
-          shell: bash
+      run: sudo make test
