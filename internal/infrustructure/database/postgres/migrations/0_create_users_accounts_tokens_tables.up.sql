@@ -1,4 +1,6 @@
--- V2024.12.28.0001__create_users_accounts_tokens_tables.up.sql
+-- 1__create_users_accounts_tokens_tables.up.sql
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -23,7 +25,7 @@ CREATE TABLE accounts (
     expires_at INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE tokens (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -31,4 +33,4 @@ CREATE TABLE tokens (
     token TEXT UNIQUE NOT NULL,
     type INTEGER NOT NULL, -- TokenType enum (0: Verification, 1: TwoFactor, 2: PasswordReset)
     epires_in TIMESTAMP NOT NULL
-)
+);
