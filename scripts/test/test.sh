@@ -2,6 +2,7 @@
 
 set -e
 
+make test-env-up
 
 echo "Running tests..."
 if ! go test ./... -count=1 -v; then

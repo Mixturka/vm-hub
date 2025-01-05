@@ -11,20 +11,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    services:
-      postgres_test:
-        image: postgres:15
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -33,24 +19,26 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: '1.23'
-
+    
+    - name: Set up docker
+      uses: docker/setup-buildx-action@v2
+    
     - name: Install golang-migrate
       run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
-    - name: Install dependencies
+    
+    - name: Install go dependencies
       run: go mod tidy
-
-    - name: Configure .env.test file
+    
+    - name: Create .env.test file from secrets
       env:
-        TEST_POSTGRES_URL: ${{ secrets.TEST_POSTGRES_URL }}
+          TEST_POSTGRES_URL: ${{ secrets.TEST_POSTGRES_URL }}
+          POSTGRES_MIGRATIONS_PATH: ${{ secrets.POSTGRES_MIGRATIONS_PATH }}
       run: |
         echo "TEST_POSTGRES_URL=${TEST_POSTGRES_URL}" > .env.test
-        echo "POSTGRES_MIGRATIONS_PATH=${GITHUB_WORKSPACE}/internal/app/infrastructure/database/postgres/migrations" >> .env.test
+        echo "POSTGRES_MIGRATIONS_PATH=${GITHUB_WORKSPACE}/internal/app/infrustructure/database/postgres/migrations" >> .env.test
+    
     - name: Make scripts executable
       run: chmod -R +x ./scripts
-
+    
     - name: Run tests
-      run: |
-        export CI=true
-        sudo make test
-
+      run: sudo make test
