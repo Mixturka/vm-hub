@@ -18,17 +18,6 @@ services:
     ports:
       - "5432:5432" 
 
-  migrate_local:
-    build:
-      context: .
-      dockerfile: Dockerfile.migrate
-    volumes:
-      - ${POSTGRES_MIGRATIONS_PATH}:/migrations
-    depends_on:
-      - postgres_test
-    networks:
-      - app_network
-
 networks:
   app_network:
     driver: bridge

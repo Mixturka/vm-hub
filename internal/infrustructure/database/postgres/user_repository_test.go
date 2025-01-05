@@ -4,12 +4,16 @@ import (
 	"context"
 	"log"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/Mixturka/vm-hub/internal/application/interfaces"
 	"github.com/Mixturka/vm-hub/internal/domain/entities"
 	"github.com/Mixturka/vm-hub/pkg/putils"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
@@ -42,6 +46,20 @@ func TestMain(m *testing.M) {
 		log.Fatal("TEST_POSTGRES_URL is not set in environment")
 	}
 
+	migrationsPath := os.Getenv("POSTGRES_MIGRATIONS_PATH")
+	if migrationsPath == "" {
+		log.Fatal("POSTGRES_MIGRATIONS_PATH is not set in environment")
+	}
+
+	migration, err := migrate.New("file://"+filepath.Join(projRoot, migrationsPath), connStr)
+	if err != nil {
+		log.Fatalf("Failed to initialize golang-migrate: %v", err)
+	}
+
+	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
+
 	db, err = pgxpool.Connect(context.Background(), connStr)
 	if err != nil {
 		log.Fatalf("Error creating connection pool: %v", err)
@@ -50,6 +68,11 @@ func TestMain(m *testing.M) {
 	db.Config().MaxConns = 10
 	repo = NewPostgresUserRepository(db)
 	exitCode := m.Run()
+
+	log.Print("Tests run. Rolling back migrations...")
+	if err := migration.Down(); err != nil {
+		log.Fatalf("Failed to rollback migrations: %v", err)
+	}
 
 	defer db.Close()
 

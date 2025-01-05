@@ -3,10 +3,9 @@
 set -e
 
 make test-env-up
-make migrate-test
 
 echo "Running tests..."
-if ! go test ./... -v; then
+if ! go test ./... -count=1 -v; then
   echo "Tests failed. Cleaning up..."
   make clean-tests
   exit 1

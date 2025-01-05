@@ -15,15 +15,8 @@ test-env-up:
 test-env-down:
 	@$(STOP_TEST_ENV_SCRIPT)
 
-migrate-test:
-	@$(MIGRATE_TEST_SCRIPT)
-
-reset-db:
-	@$(RESET_TEST_DB_SCRIPT)
-
 test:
 	@. $(LOAD_ENV) && $(RUN_TESTS_SCRIPT)
 
 clean-tests:
-	@$(MAKE) reset-db
 	@$(MAKE) test-env-down
