@@ -33,6 +33,7 @@ jobs:
       run: |
         echo "TEST_POSTGRES_URL=${{ secrets.TEST_POSTGRES_URL }}" > .env.test
         echo "POSTGRES_MIGRATIONS_PATH=${{ secrets.POSTGRES_MIGRATIONS_PATH }}" >> .env.test
+        echo ${{ secrets.TEST_POSTGRES_URL }}
     
     - name: Make scripts executable
       run: chmod -R +x ./scripts
