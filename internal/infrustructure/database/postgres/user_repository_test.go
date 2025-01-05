@@ -51,7 +51,16 @@ func TestMain(m *testing.M) {
 		log.Fatal("POSTGRES_MIGRATIONS_PATH is not set in environment")
 	}
 
-	migration, err := migrate.New("file://"+filepath.Join(projRoot, migrationsPath), connStr)
+	var absoluteMigrationsPath string
+	if filepath.IsAbs(migrationsPath) {
+		absoluteMigrationsPath = migrationsPath
+	} else {
+		absoluteMigrationsPath = filepath.Join(projRoot, migrationsPath)
+	}
+
+	log.Printf("Using migrations path: %s", absoluteMigrationsPath)
+
+	migration, err := migrate.New("file://"+absoluteMigrationsPath, connStr)
 	if err != nil {
 		log.Fatalf("Failed to initialize golang-migrate: %v", err)
 	}
@@ -69,7 +78,7 @@ func TestMain(m *testing.M) {
 	repo = NewPostgresUserRepository(db)
 	exitCode := m.Run()
 
-	log.Print("Tests run. Rolling back migrations...")
+	log.Println("Tests run. Rolling back migrations...")
 	if err := migration.Down(); err != nil {
 		log.Fatalf("Failed to rollback migrations: %v", err)
 	}
