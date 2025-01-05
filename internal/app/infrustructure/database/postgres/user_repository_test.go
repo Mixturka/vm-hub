@@ -30,7 +30,9 @@ func TestMain(m *testing.M) {
 }
 
 func truncateTables(t *testing.T) {
-	_, err := testUtil.DB.Exec(context.Background(), `TRUNCATE TABLE users, accounts, tokens RESTART IDENTITY CASCADE;`)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := testUtil.DB.Exec(ctx, `TRUNCATE TABLE users, accounts, tokens RESTART IDENTITY CASCADE;`)
 	require.NoError(t, err, "Failed to truncate tables")
 }
 
