@@ -7,7 +7,11 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    resources:
+      limits:
+        cpu: 2
+        memory: 4GB
     defaults:
       run:
         shell: bash

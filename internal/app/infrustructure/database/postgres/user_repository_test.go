@@ -63,7 +63,7 @@ func prettyLog(t *testing.T, testName string, message string) {
 
 func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 	t.Run("Save User And Get By Email Test", func(t *testing.T) {
-		// t.Parallel()
+		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Starting test to get and save a user")
 
 		setupDB(t)
@@ -88,7 +88,7 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 
 func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 	t.Run("Save User And Get By ID Test", func(t *testing.T) {
-		// t.Parallel()
+		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Starting test to save and get a user")
 
 		setupDB(t)
@@ -113,7 +113,7 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 
 func TestPostgresUserRepository_Save_Update(t *testing.T) {
 	t.Run("Save And Update User Test", func(t *testing.T) {
-		// t.Parallel()
+		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Starting test to save and update a user")
 
 		setupDB(t)
@@ -142,7 +142,7 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 
 func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 	t.Run("Save And Delete User Test", func(t *testing.T) {
-		// t.Parallel()
+		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Starting test to save and delete a user")
 
 		setupDB(t)
@@ -150,7 +150,7 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 		user := *newTestUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		err := repo.Save(ctx, &user)
