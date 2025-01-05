@@ -30,10 +30,12 @@ jobs:
       run: go mod tidy
     
     - name: Create .env.test file from secrets
+        env:
+          TEST_POSTGRES_URL: ${{ secrets.TEST_POSTGRES_URL }}
+          POSTGRES_MIGRATIONS_PATH: ${{ secrets.POSTGRES_MIGRATIONS_PATH }}
       run: |
-        echo "TEST_POSTGRES_URL=${{ secrets.TEST_POSTGRES_URL }}" > .env.test
-        echo "POSTGRES_MIGRATIONS_PATH=${{ secrets.POSTGRES_MIGRATIONS_PATH }}" >> .env.test
-        echo ${{ secrets.TEST_POSTGRES_URL }}
+        echo "TEST_POSTGRES_URL=${TEST_POSTGRES_URL}" > .env.test
+        echo "POSTGRES_MIGRATIONS_PATH=${POSTGRES_MIGRATIONS_PATH}" >> .env.test
     
     - name: Make scripts executable
       run: chmod -R +x ./scripts
