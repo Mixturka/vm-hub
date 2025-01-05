@@ -147,7 +147,7 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 
 		user := *newTestUser()
 
-		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Inserting user to database")
+		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
