@@ -7,13 +7,10 @@ import (
 	"time"
 
 	"github.com/Mixturka/vm-hub/internal/app/application/interfaces"
-	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
 	"github.com/Mixturka/vm-hub/internal/pkg/test"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -29,36 +26,6 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-func truncateTables(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second) // Increased timeout
-	defer cancel()
-	t.Log("Truncating tables: users, accounts, tokens")
-	_, err := testUtil.DB.Exec(ctx, `TRUNCATE TABLE users, accounts, tokens RESTART IDENTITY CASCADE;`)
-	require.NoError(t, err, "Failed to truncate tables")
-	t.Log("Tables truncated successfully")
-}
-
-func setupDB(t *testing.T) {
-	truncateTables(t)
-}
-
-func newTestUser() *entities.User {
-	fixedTime := time.Date(2023, time.January, 1, 12, 0, 0, 0, time.UTC)
-	return &entities.User{
-		ID:                 uuid.NewString(),
-		Name:               "Test User",
-		Email:              "test@example.com",
-		Password:           "hashedpassword",
-		ProfilePicture:     "none",
-		Accounts:           []entities.Account{},
-		IsEmailVerified:    true,
-		IsTwoFactorEnabled: false,
-		Method:             entities.Yandex,
-		CreatedAt:          fixedTime,
-		UpdatedAt:          fixedTime,
-	}
-}
-
 func prettyLog(t *testing.T, testName string, message string) {
 	t.Logf("==== %s ====\n%s\n", testName, message)
 }
@@ -68,9 +35,7 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Starting test to get and save a user")
 
-		setupDB(t)
-
-		user := *newTestUser()
+		user := *test.NewRandomUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Inserting user to database")
 
@@ -82,7 +47,7 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 		fetchedUser, err := repo.GetByEmail(context.Background(), user.Email)
 		assert.NoError(t, err, "GetByEmail shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-		assert.Equal(t, user, *fetchedUser, "Users should match")
+		test.AssertUsersEqual(t, &user, fetchedUser)
 
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "User saved and verified successfully")
 	})
@@ -93,9 +58,7 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Starting test to save and get a user")
 
-		setupDB(t)
-
-		user := *newTestUser()
+		user := *test.NewRandomUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Inserting user to database")
 
@@ -107,7 +70,7 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
 		assert.NoError(t, err, "GetByID shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-		require.Equal(t, user, *fetchedUser, "Users should match")
+		test.AssertUsersEqual(t, &user, fetchedUser)
 
 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "User saved and verified successfully")
 	})
@@ -118,9 +81,7 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Starting test to save and update a user")
 
-		setupDB(t)
-
-		user := *newTestUser()
+		user := *test.NewRandomUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Inserting user to database")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -136,7 +97,7 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
 		assert.NoError(t, err, "GetByID shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-		require.Equal(t, user, *fetchedUser, "Updated local user and user in db should match")
+		test.AssertUsersEqual(t, &user, fetchedUser)
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "User saved and updated successfully")
 	})
@@ -147,9 +108,7 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 		t.Parallel()
 		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Starting test to save and delete a user")
 
-		setupDB(t)
-
-		user := *newTestUser()
+		user := *test.NewRandomUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -161,8 +120,8 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 		err = repo.Delete(ctx, user.ID)
 		assert.NoError(t, err, "Delete shouldn't return an error")
 
-		// fetchedUser, err := repo.GetByID(ctx, user.ID)
-		// assert.Error(t, err, "Expected an error when fetching deleted user")
-		// assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
+		fetchedUser, err := repo.GetByID(ctx, user.ID)
+		assert.Error(t, err, "Expected an error when fetching deleted user")
+		assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
 	})
 }
