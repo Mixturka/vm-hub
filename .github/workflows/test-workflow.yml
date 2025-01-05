@@ -30,7 +30,7 @@ jobs:
       run: go mod tidy
     
     - name: Create .env.test file from secrets
-        env:
+      env:
           TEST_POSTGRES_URL: ${{ secrets.TEST_POSTGRES_URL }}
           POSTGRES_MIGRATIONS_PATH: ${{ secrets.POSTGRES_MIGRATIONS_PATH }}
       run: |
