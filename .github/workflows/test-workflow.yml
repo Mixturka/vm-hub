@@ -8,10 +8,6 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    resources:
-      limits:
-        cpu: 2
-        memory: 4GB
     defaults:
       run:
         shell: bash
