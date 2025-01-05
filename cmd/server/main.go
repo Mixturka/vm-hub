@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/Mixturka/vm-hub/internal/config"
-	"github.com/Mixturka/vm-hub/internal/infrustructure/server"
+	"github.com/Mixturka/vm-hub/internal/app/config"
+	"github.com/Mixturka/vm-hub/internal/app/infrustructure/server"
 )
 
 func main() {
