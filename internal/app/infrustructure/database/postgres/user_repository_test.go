@@ -30,31 +30,6 @@ func prettyLog(t *testing.T, testName string, message string) {
 	t.Logf("==== %s ====\n%s\n", testName, message)
 }
 
-func TestPostgresUserRepository_Save_Delete(t *testing.T) {
-	t.Run("Save And Delete User Test", func(t *testing.T) {
-		t.Parallel()
-		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Starting test to save and delete a user")
-
-		user := *test.NewRandomUser()
-
-		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		err := repo.Save(ctx, &user)
-		assert.NoError(t, err, "Save shouldn't return an error")
-
-		err = repo.Delete(ctx, user.ID)
-		assert.NoError(t, err, "Delete shouldn't return an error")
-
-		time.Sleep(500 * time.Millisecond)
-
-		fetchedUser, err := repo.GetByID(ctx, user.ID)
-		assert.Error(t, err, "Expected an error when fetching deleted user")
-		assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
-	})
-}
-
 func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 	t.Run("Save User And Get By Email Test", func(t *testing.T) {
 		t.Parallel()
@@ -125,5 +100,30 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 		test.AssertUsersEqual(t, &user, fetchedUser)
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "User saved and updated successfully")
+	})
+}
+
+func TestPostgresUserRepository_Save_Delete(t *testing.T) {
+	t.Run("Save And Delete User Test", func(t *testing.T) {
+		t.Parallel()
+		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Starting test to save and delete a user")
+
+		user := *test.NewRandomUser()
+
+		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		err := repo.Save(ctx, &user)
+		assert.NoError(t, err, "Save shouldn't return an error")
+
+		err = repo.Delete(ctx, user.ID)
+		assert.NoError(t, err, "Delete shouldn't return an error")
+
+		time.Sleep(500 * time.Millisecond)
+
+		fetchedUser, err := repo.GetByID(ctx, user.ID)
+		assert.Error(t, err, "Expected an error when fetching deleted user")
+		assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
 	})
 }
