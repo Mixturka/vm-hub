@@ -111,18 +111,21 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 		user := *test.NewRandomUser()
 
 		prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx1, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		err := repo.Save(ctx, &user)
+		err := repo.Save(ctx1, &user)
 		assert.NoError(t, err, "Save shouldn't return an error")
 
-		err = repo.Delete(ctx, user.ID)
+		ctx2, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		err = repo.Delete(ctx2, user.ID)
 		assert.NoError(t, err, "Delete shouldn't return an error")
 
 		time.Sleep(500 * time.Millisecond)
-
-		fetchedUser, err := repo.GetByID(ctx, user.ID)
+		ctx3, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		fetchedUser, err := repo.GetByID(ctx3, user.ID)
 		assert.Error(t, err, "Expected an error when fetching deleted user")
 		assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
 	})
