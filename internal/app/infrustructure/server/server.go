@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Mixturka/vm-hub/internal/config"
+	"github.com/Mixturka/vm-hub/internal/app/config"
 	"github.com/Mixturka/vm-hub/views/templates"
 
 	"github.com/a-h/templ"

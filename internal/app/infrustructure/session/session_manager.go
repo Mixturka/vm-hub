@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Mixturka/vm-hub/internal/application/interfaces"
-	"github.com/Mixturka/vm-hub/internal/config"
+	"github.com/Mixturka/vm-hub/internal/app/application/interfaces"
+	"github.com/Mixturka/vm-hub/internal/app/config"
 
 	"github.com/google/uuid"
 )

@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Mixturka/vm-hub/internal/application/interfaces"
-	"github.com/Mixturka/vm-hub/internal/domain/entities"
+	"github.com/Mixturka/vm-hub/internal/app/application/interfaces"
+	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )

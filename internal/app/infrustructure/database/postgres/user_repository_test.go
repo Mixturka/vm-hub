@@ -2,101 +2,36 @@ package postgres
 
 import (
 	"context"
-	"log"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/Mixturka/vm-hub/internal/application/interfaces"
-	"github.com/Mixturka/vm-hub/internal/domain/entities"
-	"github.com/Mixturka/vm-hub/pkg/putils"
-	"github.com/golang-migrate/migrate/v4"
+	"github.com/Mixturka/vm-hub/internal/app/application/interfaces"
+	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
+	"github.com/Mixturka/vm-hub/internal/pkg/test"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var db *pgxpool.Pool
-var repo interfaces.UserRepository
+var (
+	testUtil *test.PostgresTestUtil
+	repo     interfaces.UserRepository
+)
 
 func TestMain(m *testing.M) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Error getting current working directory: %v", err)
-	}
-
-	log.Printf("Current working directory: %s", cwd)
-
-	projRoot, err := putils.GetProjectRoot(cwd)
-	if err != nil {
-		log.Fatalf("Error looking for root directory: %v", err)
-	}
-
-	if err := godotenv.Load(projRoot + "/.env.test"); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-
-	connStr := os.Getenv("TEST_POSTGRES_URL")
-	if connStr == "" {
-		log.Fatal("TEST_POSTGRES_URL is not set in environment")
-	}
-
-	migrationsPath := os.Getenv("POSTGRES_MIGRATIONS_PATH")
-	if migrationsPath == "" {
-		log.Fatal("POSTGRES_MIGRATIONS_PATH is not set in environment")
-	}
-
-	var absoluteMigrationsPath string
-	if filepath.IsAbs(migrationsPath) {
-		absoluteMigrationsPath = migrationsPath
-	} else {
-		absoluteMigrationsPath = filepath.Join(projRoot, migrationsPath)
-	}
-
-	log.Printf("Using migrations path: %s", absoluteMigrationsPath)
-
-	migration, err := migrate.New("file://"+absoluteMigrationsPath, connStr)
-	if err != nil {
-		log.Fatalf("Failed to initialize golang-migrate: %v", err)
-	}
-
-	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Failed to apply migrations: %v", err)
-	}
-
-	db, err = pgxpool.Connect(context.Background(), connStr)
-	if err != nil {
-		log.Fatalf("Error creating connection pool: %v", err)
-	}
-
-	db.Config().MaxConns = 10
-	repo = NewPostgresUserRepository(db)
+	testUtil = test.NewPostgresTestUtil()
+	repo = NewPostgresUserRepository(testUtil.DB)
 	exitCode := m.Run()
-
-	log.Println("Tests run. Rolling back migrations...")
-	if err := migration.Down(); err != nil {
-		log.Fatalf("Failed to rollback migrations: %v", err)
-	}
-
-	defer db.Close()
-
+	defer testUtil.Close()
 	os.Exit(exitCode)
 }
 
 func truncateTables(t *testing.T) {
-	_, err := db.Exec(context.Background(), `TRUNCATE users, accounts RESTART IDENTITY CASCADE;`)
-	if err != nil {
-		t.Fatalf("Failed to truncate tables: %v", err)
-	}
-}
-
-func prettyLog(t *testing.T, testName string, message string) {
-	t.Logf("==== %s ====\n%s\n", testName, message)
+	_, err := testUtil.DB.Exec(context.Background(), `TRUNCATE TABLE users, accounts RESTART IDENTITY CASCADE;`)
+	require.NoError(t, err, "Failed to truncate tables")
 }
 
 func setupDB(t *testing.T) {
@@ -107,17 +42,21 @@ func newTestUser() *entities.User {
 	fixedTime := time.Date(2023, time.January, 1, 12, 0, 0, 0, time.UTC)
 	return &entities.User{
 		ID:                 uuid.NewString(),
-		Name:               "John",
-		Email:              "test@email.com",
-		Password:           "hashedpass",
+		Name:               "Test User",
+		Email:              "test@example.com",
+		Password:           "hashedpassword",
 		ProfilePicture:     "none",
 		Accounts:           []entities.Account{},
 		IsEmailVerified:    true,
-		IsTwoFactorEnabled: true,
+		IsTwoFactorEnabled: false,
 		Method:             entities.Yandex,
 		CreatedAt:          fixedTime,
 		UpdatedAt:          fixedTime,
 	}
+}
+
+func prettyLog(t *testing.T, testName string, message string) {
+	t.Logf("==== %s ====\n%s\n", testName, message)
 }
 
 func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {

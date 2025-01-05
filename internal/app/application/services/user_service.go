@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/Mixturka/vm-hub/internal/domain/entities"
+	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
 )
 
 type UserService interface {
