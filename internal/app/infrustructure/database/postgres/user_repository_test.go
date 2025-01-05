@@ -30,10 +30,12 @@ func TestMain(m *testing.M) {
 }
 
 func truncateTables(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second) // Increased timeout
 	defer cancel()
+	t.Log("Truncating tables: users, accounts, tokens")
 	_, err := testUtil.DB.Exec(ctx, `TRUNCATE TABLE users, accounts, tokens RESTART IDENTITY CASCADE;`)
 	require.NoError(t, err, "Failed to truncate tables")
+	t.Log("Tables truncated successfully")
 }
 
 func setupDB(t *testing.T) {
@@ -61,84 +63,84 @@ func prettyLog(t *testing.T, testName string, message string) {
 	t.Logf("==== %s ====\n%s\n", testName, message)
 }
 
-// func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
-// 	t.Run("Save User And Get By Email Test", func(t *testing.T) {
-// 		t.Parallel()
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Starting test to get and save a user")
+func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
+	t.Run("Save User And Get By Email Test", func(t *testing.T) {
+		t.Parallel()
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Starting test to get and save a user")
 
-// 		setupDB(t)
+		setupDB(t)
 
-// 		user := *newTestUser()
+		user := *newTestUser()
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Inserting user to database")
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "Inserting user to database")
 
-// 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 		defer cancel()
-// 		err := repo.Save(ctx, &user)
-// 		assert.NoError(t, err, "Save shouldn't return an error")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		err := repo.Save(ctx, &user)
+		assert.NoError(t, err, "Save shouldn't return an error")
 
-// 		fetchedUser, err := repo.GetByEmail(context.Background(), user.Email)
-// 		assert.NoError(t, err, "GetByEmail shouldn't return an error")
-// 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-// 		assert.Equal(t, user, *fetchedUser, "Users should match")
+		fetchedUser, err := repo.GetByEmail(context.Background(), user.Email)
+		assert.NoError(t, err, "GetByEmail shouldn't return an error")
+		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
+		assert.Equal(t, user, *fetchedUser, "Users should match")
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "User saved and verified successfully")
-// 	})
-// }
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByEmail", "User saved and verified successfully")
+	})
+}
 
-// func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
-// 	t.Run("Save User And Get By ID Test", func(t *testing.T) {
-// 		t.Parallel()
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Starting test to save and get a user")
+func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
+	t.Run("Save User And Get By ID Test", func(t *testing.T) {
+		t.Parallel()
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Starting test to save and get a user")
 
-// 		setupDB(t)
+		setupDB(t)
 
-// 		user := *newTestUser()
+		user := *newTestUser()
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Inserting user to database")
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "Inserting user to database")
 
-// 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 		defer cancel()
-// 		err := repo.Save(ctx, &user)
-// 		assert.NoError(t, err, "Save shouldn't return an error")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		err := repo.Save(ctx, &user)
+		assert.NoError(t, err, "Save shouldn't return an error")
 
-// 		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
-// 		assert.NoError(t, err, "GetByID shouldn't return an error")
-// 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-// 		require.Equal(t, user, *fetchedUser, "Users should match")
+		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
+		assert.NoError(t, err, "GetByID shouldn't return an error")
+		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
+		require.Equal(t, user, *fetchedUser, "Users should match")
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "User saved and verified successfully")
-// 	})
-// }
+		prettyLog(t, "TestPostgresUserRepository_Save_GetByID", "User saved and verified successfully")
+	})
+}
 
-// func TestPostgresUserRepository_Save_Update(t *testing.T) {
-// 	t.Run("Save And Update User Test", func(t *testing.T) {
-// 		t.Parallel()
-// 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Starting test to save and update a user")
+func TestPostgresUserRepository_Save_Update(t *testing.T) {
+	t.Run("Save And Update User Test", func(t *testing.T) {
+		t.Parallel()
+		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Starting test to save and update a user")
 
-// 		setupDB(t)
+		setupDB(t)
 
-// 		user := *newTestUser()
+		user := *newTestUser()
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Inserting user to database")
-// 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 		defer cancel()
+		prettyLog(t, "TestPostgresUserRepository_Save_Update", "Inserting user to database")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
 
-// 		err := repo.Save(ctx, &user)
-// 		assert.NoError(t, err, "Save shouldn't return an error")
+		err := repo.Save(ctx, &user)
+		assert.NoError(t, err, "Save shouldn't return an error")
 
-// 		user.Name = "Andrew"
-// 		err = repo.Update(ctx, &user)
-// 		assert.NoError(t, err, "Update shouldn't return an error")
+		user.Name = "Andrew"
+		err = repo.Update(ctx, &user)
+		assert.NoError(t, err, "Update shouldn't return an error")
 
-// 		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
-// 		assert.NoError(t, err, "GetByID shouldn't return an error")
-// 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
-// 		require.Equal(t, user, *fetchedUser, "Updated local user and user in db should match")
+		fetchedUser, err := repo.GetByID(context.Background(), user.ID)
+		assert.NoError(t, err, "GetByID shouldn't return an error")
+		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
+		require.Equal(t, user, *fetchedUser, "Updated local user and user in db should match")
 
-// 		prettyLog(t, "TestPostgresUserRepository_Save_Update", "User saved and updated successfully")
-// 	})
-// }
+		prettyLog(t, "TestPostgresUserRepository_Save_Update", "User saved and updated successfully")
+	})
+}
 
 func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 	t.Run("Save And Delete User Test", func(t *testing.T) {
