@@ -150,7 +150,13 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *entities.User
 }
 
 func (r *PostgresUserRepository) Delete(ctx context.Context, id string) error {
+	accountsQuery := "DELETE FROM accounts WHERE user_id = $1"
+	_, err := r.db.Exec(ctx, accountsQuery, id)
+	if err != nil {
+		return err
+	}
+
 	userQuery := "DELETE FROM users WHERE id = $1"
-	_, err := r.db.Exec(ctx, userQuery, id)
+	_, err = r.db.Exec(ctx, userQuery, id)
 	return err
 }

@@ -9,7 +9,6 @@ import (
 )
 
 func AssertUsersEqual(t *testing.T, expected, actual *entities.User) {
-	// Compare the fields that don't involve time
 	assert.Equal(t, expected.ID, actual.ID)
 	assert.Equal(t, expected.ProfilePicture, actual.ProfilePicture)
 	assert.Equal(t, expected.Name, actual.Name)
@@ -20,7 +19,6 @@ func AssertUsersEqual(t *testing.T, expected, actual *entities.User) {
 	assert.Equal(t, expected.IsTwoFactorEnabled, actual.IsTwoFactorEnabled)
 	assert.Equal(t, expected.Method, actual.Method)
 
-	// Compare time fields with a tolerance
 	assert.True(t, actual.CreatedAt.Sub(expected.CreatedAt) < time.Millisecond, "CreatedAt should match within a millisecond")
 	assert.True(t, actual.UpdatedAt.Sub(expected.UpdatedAt) < time.Millisecond, "UpdatedAt should match within a millisecond")
 }
