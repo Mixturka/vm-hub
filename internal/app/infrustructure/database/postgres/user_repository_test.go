@@ -47,11 +47,9 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		// Save user
 		err := repo.Save(ctx, &user)
 		assert.NoError(t, err, "Save shouldn't return an error")
 
-		// Fetch user by email
 		fetchedUser, err := repo.GetByEmail(ctx, user.Email)
 		assert.NoError(t, err, "GetByEmail shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
@@ -62,6 +60,9 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 
 	t.Run("Save User And Get By ID Test", func(t *testing.T) {
+		if testing.Short() {
+			t.Skip("Skipping test in short mode...")
+		}
 		t.Parallel()
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
@@ -71,11 +72,9 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		// Save user
 		err := repo.Save(ctx, &user)
 		assert.NoError(t, err, "Save shouldn't return an error")
 
-		// Fetch user by ID
 		fetchedUser, err := repo.GetByID(ctx, user.ID)
 		assert.NoError(t, err, "GetByID shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
@@ -85,14 +84,15 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 
 func TestPostgresUserRepository_Save_Update(t *testing.T) {
 	t.Run("Save And Update User Test", func(t *testing.T) {
+		if testing.Short() {
+			t.Skip("Skipping test in short mode...")
+		}
 		t.Parallel()
-		// prettyLog(t, "TestPostgresUserRepository_Save_Update", "Starting test to save and update a user")
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
 		repo := NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
-		// prettyLog(t, "TestPostgresUserRepository_Save_Update", "Inserting user to database")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -107,40 +107,31 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 		assert.NoError(t, err, "GetByID shouldn't return an error")
 		assert.NotNil(t, fetchedUser, "Fetched user should not be nil")
 		test.AssertUsersEqual(t, &user, fetchedUser)
-
-		// prettyLog(t, "TestPostgresUserRepository_Save_Update", "User saved and updated successfully")
 	})
 }
 
 func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 	t.Run("Save And Delete User Test", func(t *testing.T) {
+		if testing.Short() {
+			t.Skip("Skipping test in short mode...")
+		}
 		t.Parallel()
-		// prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Starting test to save and delete a user")
+
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
 		repo := NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
-		// prettyLog(t, "TestPostgresUserRepository_Save_Delete", "Inserting user to database")
-		ctx1, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		err := repo.Save(ctx1, &user)
+		err := repo.Save(ctx, &user)
 		assert.NoError(t, err, "Save shouldn't return an error")
 
-		ctx2, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-		defer cancel()
-		err = repo.Delete(ctx2, user.ID)
+		err = repo.Delete(ctx, user.ID)
 		assert.NoError(t, err, "Delete shouldn't return an error")
 
-		time.Sleep(500 * time.Millisecond)
-		ctx3, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-		defer cancel()
-		fetchedUser, err := repo.GetByID(ctx3, user.ID)
-
-		if fetchedUser == nil {
-			t.Logf("USER NIL")
-		}
+		fetchedUser, err := repo.GetByID(ctx, user.ID)
 		assert.Error(t, err, "Expected an error when fetching deleted user")
 		assert.Nil(t, fetchedUser, "Fetched user should be nil after deletion")
 	})
