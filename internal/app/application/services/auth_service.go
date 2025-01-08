@@ -11,6 +11,7 @@ import (
 	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
 	"github.com/Mixturka/vm-hub/internal/app/infrustructure/session"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v4"
 )
 
 type AuthService struct {
@@ -31,7 +32,9 @@ func (as *AuthService) Register(dto dtos.RegisterDto, w http.ResponseWriter) err
 	ctx := context.Background()
 	isExists, err := as.userServise.FindByEmail(ctx, dto.Email)
 	if err != nil {
-		return fmt.Errorf("failed to check user existence: %w", err)
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to check user existence: %w", err)
+		}
 	}
 	if isExists != nil {
 		return errors.New("registration failed: user with this email already exists. Please try to use other email or login to the existing account")

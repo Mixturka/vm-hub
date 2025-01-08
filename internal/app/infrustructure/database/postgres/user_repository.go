@@ -2,12 +2,12 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/Mixturka/vm-hub/internal/app/application/interfaces"
 	"github.com/Mixturka/vm-hub/internal/app/domain/entities"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -32,8 +32,8 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*entit
 		&user.Email, &user.Password, &user.IsEmailVerified,
 		&user.IsTwoFactorEnabled, &user.Method, &user.CreatedAt,
 		&user.UpdatedAt)
-	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user with ID %s not found: %w", id, sql.ErrNoRows)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("user with ID %s not found: %w", id, pgx.ErrNoRows)
 	} else if err != nil {
 		return nil, fmt.Errorf("error fetching user by ID: %w", err)
 	}
@@ -78,10 +78,11 @@ func (r *PostgresUserRepository) GetByEmail(ctx context.Context, email string) (
 		&user.Email, &user.Password, &user.IsEmailVerified,
 		&user.IsTwoFactorEnabled, &user.Method, &user.CreatedAt,
 		&user.UpdatedAt)
-	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user with email %s not found: %w", email, sql.ErrNoRows)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("user with email %s not found: %w", email, pgx.ErrNoRows)
 	} else if err != nil {
 		return nil, fmt.Errorf("error fetching user by email: %w", err)
+
 	}
 
 	accountsQuery := `SELECT id, user_id, type, provider, refresh_token, access_token, expires_at, created_at, updated_at

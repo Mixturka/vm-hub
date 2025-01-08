@@ -39,12 +39,7 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	// json.NewEncoder(w).Encode(map[string]interface{}{
-	// 	"message": "User registered successfully",
-	// 	"user": map[string]interface{}{
-	// 		"id":    user.ID,
-	// 		"name":  user.Name,
-	// 		"email": user.Email,
-	// 	},
-	// })
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "User registered successfully",
+	})
 }
