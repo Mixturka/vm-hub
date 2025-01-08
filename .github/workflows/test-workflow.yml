@@ -35,7 +35,8 @@ jobs:
           POSTGRES_MIGRATIONS_PATH: ${{ secrets.POSTGRES_MIGRATIONS_PATH }}
       run: |
         echo "TEST_POSTGRES_URL=${TEST_POSTGRES_URL}" > .env.test
-        echo "POSTGRES_MIGRATIONS_PATH=${GITHUB_WORKSPACE}/internal/app/infrustructure/database/postgres/migrations" >> .env.test
+        echo "TEST_REDIS_URL=${TEST_REDIS_URL}" >> .env.test
+        echo "POSTGRES_MIGRATIONS_PATH=${GITHUB_WORKSPACE}/internal/app/infrustructure/database/postgres/migrations" >>> .env.test
     
     - name: Make scripts executable
       run: chmod -R +x ./scripts

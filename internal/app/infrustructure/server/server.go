@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Mixturka/vm-hub/internal/app/config"
-	"github.com/Mixturka/vm-hub/views/templates"
+	"github.com/Mixturka/vm-hub/web/templates"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"

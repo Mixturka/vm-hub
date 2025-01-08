@@ -17,6 +17,23 @@ services:
       - app_network
     ports:
       - "5432:5432" 
+    
+  redis_test:
+    container_name: vm-hub-redis-test-db
+    image: redis:latest
+    environment:
+      REDIS_USER: redis
+      REDIS_PASSWORD: redis
+      REDIS_USER_PASSWORD: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - app_network
+    ports:
+      - "6379:6379"
 
 networks:
   app_network:

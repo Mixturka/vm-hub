@@ -10,10 +10,10 @@ import (
 )
 
 type RedisStore struct {
-	client *redis.Client
+	client redis.Cmdable
 }
 
-func NewRedisStore(client *redis.Client) *RedisStore {
+func NewRedisStore(client redis.Cmdable) *RedisStore {
 	return &RedisStore{
 		client: client,
 	}

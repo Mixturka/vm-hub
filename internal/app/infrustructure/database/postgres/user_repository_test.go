@@ -1,4 +1,4 @@
-package postgres
+package postgres_test
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Mixturka/vm-hub/internal/app/infrustructure/database/postgres"
 	"github.com/Mixturka/vm-hub/internal/pkg/test"
 	"github.com/Mixturka/vm-hub/pkg/putils"
 	"github.com/stretchr/testify/assert"
@@ -41,7 +42,7 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
-		repo := NewPostgresUserRepository(ptUtil.DB())
+		repo := postgres.NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -66,7 +67,7 @@ func TestPostgresUserRepository_Save_GetByID(t *testing.T) {
 		t.Parallel()
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
-		repo := NewPostgresUserRepository(ptUtil.DB())
+		repo := postgres.NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -90,7 +91,7 @@ func TestPostgresUserRepository_Save_Update(t *testing.T) {
 		t.Parallel()
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
-		repo := NewPostgresUserRepository(ptUtil.DB())
+		repo := postgres.NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -119,7 +120,7 @@ func TestPostgresUserRepository_Save_Delete(t *testing.T) {
 
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
-		repo := NewPostgresUserRepository(ptUtil.DB())
+		repo := postgres.NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

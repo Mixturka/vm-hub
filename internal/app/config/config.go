@@ -28,10 +28,8 @@ type SessionOptions struct {
 	CookiesSecret   string
 }
 
-/*
-Parses duration with unit e.g. "3d", "15h", "12m" and returns result duration in seconds
-with possible error. If no unit provided parses as seconds.
-*/
+// Parses duration with unit e.g. "3d", "15h", "12m" and returns result duration in seconds
+// with possible error. If no unit provided parses as seconds.
 func parseDuration(duration string) (int, error) {
 	multipliers := map[string]time.Duration{
 		"s": time.Second,
@@ -67,23 +65,23 @@ func parseDuration(duration string) (int, error) {
 
 func LoadConfig() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		return nil, errors.New(fmt.Sprintf("Error loading .env file: %s", err))
+		return nil, fmt.Errorf("error loading .env file: %s", err)
 	}
 
 	sessionLifeTimeStr := os.Getenv("SESSION_LIFETIME")
 	sessionLifeTime, err := parseDuration(sessionLifeTimeStr)
 	if err != nil {
-		return nil, errors.New("Invalid SESSION_LIFETIME value")
+		return nil, errors.New("invalid SESSION_LIFETIME value")
 	}
 
 	sessionSecure, err := strconv.ParseBool(os.Getenv("SESSION_SECURE"))
 	if err != nil {
-		return nil, errors.New("Invalid SESSION_SECURE value")
+		return nil, errors.New("invalid SESSION_SECURE value")
 	}
 
 	sessionHttpOnly, err := strconv.ParseBool(os.Getenv("SESSION_HTTP_ONLY"))
 	if err != nil {
-		return nil, errors.New("Invalid SESSION_HTTP_ONLY value")
+		return nil, errors.New("invalid SESSION_HTTP_ONLY value")
 	}
 
 	sessionOptions := &SessionOptions{

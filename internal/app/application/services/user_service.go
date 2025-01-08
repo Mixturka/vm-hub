@@ -29,10 +29,10 @@ func (us *UserService) FindByEmail(ctx context.Context, email string) (*entities
 }
 
 func (us *UserService) CreateUser(ctx context.Context, email string, password string, name string,
-	profilePic string, method entities.AuthMethod, isEmailVerified bool) error {
+	profilePic string, method entities.AuthMethod, isEmailVerified bool) (*entities.User, error) {
 	hashedPassword, err := security.HashPassword(password)
 	if err != nil {
-		return fmt.Errorf("error hashing password: %w", err)
+		return nil, fmt.Errorf("error hashing password: %w", err)
 	}
 	user := &entities.User{
 		ID:              uuid.NewString(),
@@ -43,7 +43,7 @@ func (us *UserService) CreateUser(ctx context.Context, email string, password st
 		Accounts:        []entities.Account{},
 		IsEmailVerified: isEmailVerified,
 	}
-	return us.repository.Save(ctx, user)
+	return user, us.repository.Save(ctx, user)
 }
 
 // func (us *UserService) DeleteUser(ctx context.Context, id string) error {
