@@ -31,6 +31,8 @@ func TestMain(t *testing.M) {
 
 	migrationsPath = test.MustGetEnv("POSTGRES_MIGRATIONS_PATH")
 	absoluteMigrationsPath = test.GetAbsolutePath(projRoot, migrationsPath)
+
+	os.Exit(t.Run())
 }
 
 func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
@@ -42,6 +44,7 @@ func TestPostgresUserRepository_Save_GetByEmail(t *testing.T) {
 
 		ptUtil := test.NewPostgresTestUtilWithIsolatedSchema(t)
 		test.ApplyMigrations(ptUtil.DB().Config().ConnString(), absoluteMigrationsPath)
+		defer ptUtil.DB().Close()
 		repo := postgres.NewPostgresUserRepository(ptUtil.DB())
 		user := *test.NewRandomUser()
 

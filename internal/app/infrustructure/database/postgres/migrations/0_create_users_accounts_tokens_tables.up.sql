@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     profile_picture TEXT DEFAULT '',
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE accounts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     type TEXT NOT NULL,
     provider TEXT NOT NULL,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- Foreign key to users
@@ -28,7 +28,7 @@ CREATE TABLE accounts (
 );
 
 CREATE TABLE tokens (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY,
     user_email TEXT NOT NULL,
     token TEXT UNIQUE NOT NULL,
     type INTEGER NOT NULL, -- TokenType enum (0: Verification, 1: TwoFactor, 2: PasswordReset)

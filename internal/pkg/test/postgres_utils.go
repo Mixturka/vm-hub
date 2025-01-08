@@ -67,6 +67,8 @@ func (p *PostgresTestUtil) DB() *pgxpool.Pool {
 		config, err := pgxpool.ParseConfig(p.connStr)
 		require.NoError(p.t, err)
 
+		config.MaxConns = 20
+
 		pool, err := pgxpool.ConnectConfig(context.Background(), config)
 		require.NoError(p.t, err)
 

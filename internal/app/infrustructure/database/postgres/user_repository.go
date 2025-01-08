@@ -117,7 +117,7 @@ func (r *PostgresUserRepository) Save(ctx context.Context, user *entities.User) 
 	query := `INSERT INTO users (id, profile_picture, name, email, password,
 			    is_email_verified, is_two_factor_enabled, method, created_at, updated_at)
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
-	_, err := r.db.Query(ctx, query, user.ID, user.ProfilePicture, user.Name, user.Email,
+	_, err := r.db.Exec(ctx, query, user.ID, user.ProfilePicture, user.Name, user.Email,
 		user.Password, user.IsEmailVerified, user.IsTwoFactorEnabled, user.Method,
 		user.CreatedAt, user.UpdatedAt)
 	if err != nil {
