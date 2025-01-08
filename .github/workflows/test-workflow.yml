@@ -33,6 +33,7 @@ jobs:
       env:
           TEST_POSTGRES_URL: ${{ secrets.TEST_POSTGRES_URL }}
           POSTGRES_MIGRATIONS_PATH: ${{ secrets.POSTGRES_MIGRATIONS_PATH }}
+          TEST_REDIS_URL: ${{  secrets.TEST_REDIS_URL  }}
       run: |
         echo "TEST_POSTGRES_URL=${TEST_POSTGRES_URL}" > .env.test
         echo "TEST_REDIS_URL=${TEST_REDIS_URL}" >> .env.test
