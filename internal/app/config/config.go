@@ -15,6 +15,7 @@ type Config struct {
 	ListenAddr     string
 	SessionOptions *SessionOptions
 	RedisUri       string
+	GRecapOptions  GRecapOptions
 }
 
 type SessionOptions struct {
@@ -26,6 +27,11 @@ type SessionOptions struct {
 	SessionFolder   string
 	SessionSecret   string
 	CookiesSecret   string
+}
+
+type GRecapOptions struct {
+	SecretKey string
+	URL       string
 }
 
 // Parses duration with unit e.g. "3d", "15h", "12m" and returns result duration in seconds
@@ -63,6 +69,13 @@ func parseDuration(duration string) (int, error) {
 	return value, nil
 }
 
+func getEnvOrDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
 func LoadConfig() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
 		return nil, fmt.Errorf("error loading .env file: %s", err)
@@ -95,9 +108,15 @@ func LoadConfig() (*Config, error) {
 		CookiesSecret:   os.Getenv("COOKIES_SECRET"),
 	}
 
+	gRecapOptions := GRecapOptions{
+		SecretKey: os.Getenv("GOOGLE_RECAPTCHA_SECRET_KEY"),
+		URL:       getEnvOrDefault("RECAPTCHA_URL", ""),
+	}
+
 	return &Config{
 		ListenAddr:     os.Getenv("LISTEN_ADDR"),
 		SessionOptions: sessionOptions,
 		RedisUri:       os.Getenv("REDIS_URI"),
+		GRecapOptions:  gRecapOptions,
 	}, nil
 }
