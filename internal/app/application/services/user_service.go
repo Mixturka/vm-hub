@@ -45,7 +45,3 @@ func (us *UserService) CreateUser(ctx context.Context, email string, password st
 	}
 	return user, us.repository.Save(ctx, user)
 }
-
-// func (us *UserService) DeleteUser(ctx context.Context, id string) error {
-
-// }

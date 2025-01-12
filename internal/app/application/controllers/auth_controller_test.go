@@ -211,4 +211,3 @@ func TestLogout_Success(t *testing.T) {
 		assert.Contains(t, logoutRec.Body.String(), "Logout successful", "Response body does not contain expected success message")
 	})
 }
-
