@@ -11,20 +11,28 @@ import (
 	"github.com/Mixturka/vm-hub/internal/app/infrustructure/config"
 )
 
+type OAuthServiceOptions struct {
+	BaseURL  string
+	Services []BaseOAuthService
+}
+
 type BaseOAuthService struct {
 	BaseURL string
 	options *config.BaseOAuthProviderOptions
 }
 
-func NewBaseOAuthService(baseURL string, options *config.BaseOAuthProviderOptions) BaseOAuthService {
+func NewBaseOAuthService(options *config.BaseOAuthProviderOptions) BaseOAuthService {
 	return BaseOAuthService{
-		BaseURL: baseURL,
 		options: options,
 	}
 }
 
 func (bos BaseOAuthService) RedirectURL() string {
 	return bos.BaseURL + "/auth/oauth/callback/" + bos.options.Name
+}
+
+func (bos BaseOAuthService) Options() *config.BaseOAuthProviderOptions {
+	return bos.options
 }
 
 func (bos BaseOAuthService) ExtractUserInfo(data map[string]interface{}) (dtos.OAuthUserDto, error) {
